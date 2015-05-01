@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>${groupId}</groupId>
+	<artifactId>${artifactId}</artifactId>
+	<version>${version}</version>
+	<packaging>jar</packaging>
+
+	<name>${project.artifactId}</name>
+	<url>http://maven.apache.org</url>
+
+	<properties>
+		<ironworker.worker.name>${workerName}</ironworker.worker.name>
+		<ironworker.worker.class>${package}.${workerName}</ironworker.worker.class>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<com.google.gson.version>2.2.4</com.google.gson.version>
+		<junit.version>3.8.1</junit.version>
+		<maven.jar.plugin.version>2.4</maven.jar.plugin.version>
+		<maven.assembly.plugin.version>2.4</maven.assembly.plugin.version>
+		<maven.antrun.plugin.version>1.7</maven.antrun.plugin.version>
+	</properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>com.google.code.gson</groupId>
+			<artifactId>gson</artifactId>
+			<version>${com.google.gson.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>${junit.version}</version>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<version>${maven.jar.plugin.version}</version>
+				<configuration>				  
+					<archive>
+						<manifest>
+							<!-- This class defines the 'main' method for the executable jar -->
+							<mainClass>${ironworker.worker.class}</mainClass>
+						</manifest>
+					</archive>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<version>${maven.assembly.plugin.version}</version>
+				<configuration>
+					<finalName>${ironworker.worker.name}</finalName>
+					<outputDirectory>${project.build.directory}/worker</outputDirectory>
+					<appendAssemblyId>false</appendAssemblyId>
+					<archive>
+						<manifest>
+							<mainClass>${ironworker.worker.class}</mainClass>
+						</manifest>
+					</archive>
+					<descriptorRefs>
+						<descriptorRef>jar-with-dependencies</descriptorRef>
+					</descriptorRefs>
+				</configuration>
+				<executions>
+					<execution>
+						<id>make-assembly</id>
+						<phase>package</phase>
+						<goals>
+							<goal>single</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-antrun-plugin</artifactId>
+				<version>${maven.antrun.plugin.version}</version>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>run</goal>
+						</goals>
+						<configuration>
+							<target>
+								<echo>copy special ironworker files</echo>
+								<copy file="${basedir}/iron.json" todir="${project.build.directory}/worker" />
+								<copy file="${basedir}/${ironworker.worker.name}.worker" todir="${project.build.directory}/worker" />
+							</target>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+</project>
